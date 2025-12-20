@@ -47,4 +47,54 @@ def assign_profiles(num_customers, profiles_config, assignment_weights):
     selection_probs = np.array(customer_selection_weights) / sum(customer_selection_weights) # Normalize weights to sum to 1 for selection
     return customers, customer_assignments, selection_probs
 
+def get_disc_category_day_probs(discretionary_categories, daily_multipliers):
+    """
+    Calculates the probability that a discretionary category occurs on each day of the week.
+    """
+    weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    cat_day_probs = {}
+    
+    for cat in discretionary_categories:
+        weights = []
+        for day in weekdays:
+            day_configs = daily_multipliers.get(day, {})
+            multiplier = day_configs.get(cat, 1.0)
+            weights.append(multiplier)
+        
+        cat_day_probs[cat] = np.array(weights) / sum(weights) # Normalize weights
+        
+    return cat_day_probs
 
+def generate_bimodal_hour():
+    """
+    Generates a decimal hour using a mixture of two normal distributions.
+    No restrictions: values outside [0, 24] will be handled via date overflow.
+    """
+    # Parameters of the two peaks (morning and noon)
+    p1 = (10, 2.5)  # mu=10, sigma=2.5 (morning)
+    p2 = (20, 2.0)  # mu=20, sigma=2.0 (noon)
+    p_weight = 0.45 # Weight for the first peak (morning)
+    
+    # Choose a peak and generate the decimal hour
+    if random.random() < p_weight:
+        return random.gauss(p1[0], p1[1])
+    else:
+        return random.gauss(p2[0], p2[1])
+
+def generate_timestamp_from_disc_category(start_date, discretionary_category, cat_day_probs, days_range=30):
+    """
+    Generates a timestamp based on the temporal preferences of the discretionary category.
+    """
+    weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    target_day = np.random.choice(weekdays, p=cat_day_probs[discretionary_category]) # Select day name based on category probabilities
+    
+    possible_dates = []
+    for d in range(days_range):
+        candidate_date = start_date + timedelta(days=d) # Check each date in the range
+        if candidate_date.strftime('%A') == target_day:
+            possible_dates.append(candidate_date) # Collect matching dates
+            
+    base_date = random.choice(possible_dates) # Randomly select one of the matching dates
+    
+    decimal_hour = generate_bimodal_hour() # Generate decimal hour
+    return base_date + timedelta(hours=decimal_hour)

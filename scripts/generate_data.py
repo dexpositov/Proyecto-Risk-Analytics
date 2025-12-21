@@ -206,3 +206,43 @@ def calculate_profile_category_weights(profiles_config, discretionary_categories
         extracted_weights_by_profile[profile_name] = weights
         
     return extracted_weights_by_profile
+
+def generate_discretionary_expenses(num_transactions, customers, selection_probs, customer_assignments, customer_locations,
+                                   precomputed_params, discretionary_categories, cat_day_probs, 
+                                   profile_cat_weights, start_date, locations, tx_width, start_tx_id):
+    """
+    Generates discretionary expenses data.
+    """
+    data = []
+    current_id = start_tx_id
+
+    for i in range(num_transactions):
+        cust_id = np.random.choice(customers, p=selection_probs)
+        prof_name = customer_assignments[cust_id]
+        home_city = customer_locations[cust_id]
+        category_weights = profile_cat_weights[prof_name]
+        category = np.random.choice(discretionary_categories, p=category_weights)
+        date = generate_disc_category_timestamp(start_date, category, cat_day_probs)
+        amount = generate_amount(prof_name, category, precomputed_params)
+        
+        # Location assignment with 95% chance of being home city
+        if random.random() < 0.95:
+            tx_location = home_city
+        else:
+            possible_locs = [loc for loc in locations if loc != home_city]
+            tx_location = random.choice(possible_locs)
+        
+        data.append({
+            "Transaction_ID": f"TXN-{current_id:0{tx_width}d}",
+            "Customer_ID": cust_id,
+            "Customer_Profile": prof_name,
+            "Customer_Home": home_city,
+            "Amount": amount,
+            "Timestamp": date,
+            "Terminal_ID": f"TERM_{random.randint(100, 999)}",
+            "Category": category,
+            "Location": tx_location,
+            "Is_Fixed": 0, "Is_Fraud": 0
+        })
+        current_id += 1
+    return data, current_id

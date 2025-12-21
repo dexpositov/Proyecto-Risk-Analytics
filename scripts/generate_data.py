@@ -140,3 +140,58 @@ def generate_amount(profile, category, profiles_config):
     mu, sigma = get_lognormal_params(m, s)
     return round(np.random.lognormal(mean=mu, sigma=sigma), 2)
 
+def generate_fixed_expenses(customers, customer_assignments, customer_locations, profiles_config, fixed_categories, fixed_penetration, fixed_ranges, start_date, tx_width, start_tx_id):
+    """
+    Generates fixed expenses. The location is always the customer's home city.
+    """
+    data = []
+    current_id = start_tx_id
+    
+    for cust_id in customers:
+        prof_name = customer_assignments[cust_id]
+        home_city = customer_locations[cust_id] 
+        
+        for cat in fixed_categories:
+            penetration = fixed_penetration.get(cat, 1.0)
+            if random.random() < penetration:
+                day_range = fixed_ranges.get(cat, (1, 28))
+                date = generate_fixed_category_timestamp(start_date, cat, day_range)
+                amount = generate_amount(prof_name, cat, profiles_config)
+                
+                data.append({
+                    "Transaction_ID": f"TXN-{current_id:0{tx_width}d}",
+                    "Customer_ID": cust_id,
+                    "Customer_Profile": prof_name,
+                    "Customer_Home": home_city,
+                    "Amount": amount,
+                    "Timestamp": date,
+                    "Terminal_ID": f"FIXED-{cust_id[-4:]}",
+                    "Category": cat,
+                    "Location": home_city,
+                    "Is_Fixed": 1, "Is_Fraud": 0
+                })
+                current_id += 1
+    return data, current_id
+
+def calculate_profile_category_weights(profiles_config, discretionary_categories):
+    """
+    Extracts the weights of the discretionary categories for each profile.
+    Assumes that the input configuration already sums to 1.0 among the discretionary categories.
+    """
+    extracted_weights_by_profile = {}
+    
+    # Extract the order of categories used in the configuration
+    sample_profile = next(iter(profiles_config))
+    all_categories = list(profiles_config[sample_profile]["behaviors"].keys())
+    
+    for profile_name, config in profiles_config.items():
+        # Identify the indices of the categories we are interested in
+        indices = [all_categories.index(cat) for cat in discretionary_categories]
+        
+        # Extract directly the values from the configuration vector
+        weights = np.array([config["category_weights"][i] for i in indices])
+        
+        # Save the resulting vector
+        extracted_weights_by_profile[profile_name] = weights
+        
+    return extracted_weights_by_profile

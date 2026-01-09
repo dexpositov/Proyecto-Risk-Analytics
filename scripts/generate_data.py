@@ -436,7 +436,7 @@ def main():
     }
     
     profile_assignment_weights = [0.25, 0.55, 0.08, 0.12]
-    num_clients = 2000
+    num_clients = 2900
     num_discretionary_tx = 100000 
     start_date = datetime(2026, 1, 1)
     locations = ["Madrid", "Barcelona", "Valencia", "Sevilla", "Bilbao", "Zaragoza", "Malaga"]

@@ -326,7 +326,6 @@ def create_anomalies(customers, customer_locations, discretionary_categories, lo
     current_id = start_tx_id
     
     retail_cat = "Retail" if "Retail" in discretionary_categories else discretionary_categories[-1]
-    travel_cat = "Travel" if "Travel" in discretionary_categories else discretionary_categories[-1]
     
     for i in range(num_anomalies_sets):
         # Numeric selection of the type of fraud (0: Velocity, 1: Magnitude)
@@ -349,7 +348,7 @@ def create_anomalies(customers, customer_locations, discretionary_categories, lo
             attack_loc = random.choice(possible_locs) if possible_locs else home_city
             
             new_anomalies, current_id = generate_magnitude_fraud(target_client, profile_name, home_city, 
-            travel_cat, start_date, days_range, tx_width, current_id, batch_suffix, attack_loc, lognormal_params)
+            retail_cat, start_date, days_range, tx_width, current_id, batch_suffix, attack_loc, lognormal_params)
             
         all_anomalies.extend(new_anomalies)
             
@@ -390,15 +389,15 @@ def create_all_transactions_data(customers, customer_assignments, customer_locat
 def main():
     # Creation of the configuration parameters
     fixed_categories = ["Housing", "Utilities"]
-    discretionary_categories = ["Travel", "Retail", "Groceries", "Leisure", "Others"]
+    discretionary_categories = ["Transportation", "Retail", "Groceries", "Leisure", "Others"]
     fixed_penetration = {"Housing": 0.75, "Utilities": 0.85}
     fixed_ranges = {"Housing": (1, 5), "Utilities": (1, 10)}
     
     daily_category_multipliers = {
         "Wednesday": {"Others": 1.5, "Retail": 1.2},
-        "Friday":    {"Leisure": 2.0, "Travel": 1.5},
+        "Friday":    {"Leisure": 2.0, "Transportation": 1.5},
         "Saturday":  {"Leisure": 3.0, "Groceries": 2.5, "Retail": 1.8},
-        "Sunday":    {"Leisure": 2.5, "Travel": 2.0}
+        "Sunday":    {"Leisure": 2.5, "Transportation": 2.0}
     }
 
     profiles_config = {
@@ -406,7 +405,7 @@ def main():
             "frequency_weight": 0.35,
             "category_weights": [0.0, 0.0, 0.05, 0.15, 0.50, 0.20, 0.10],
             "behaviors": {
-                "Utilities": (60, 5), "Housing": (550, 20), "Travel": (40, 20), 
+                "Utilities": (60, 5), "Housing": (550, 20), "Transportation": (40, 10), 
                 "Retail": (25, 10), "Groceries": (50, 15), "Leisure": (20, 10), "Others": (10, 5)
             }
         },
@@ -414,7 +413,7 @@ def main():
             "frequency_weight": 1.0,
             "category_weights": [0.0, 0.0, 0.15, 0.20, 0.30, 0.20, 0.15],
             "behaviors": {
-                "Utilities": (90, 15), "Housing": (900, 50), "Travel": (300, 150), 
+                "Utilities": (90, 15), "Housing": (900, 50), "Transportation": (80, 20), 
                 "Retail": (80, 40), "Groceries": (80, 25), "Leisure": (70, 30), "Others": (30, 15)
             }
         },
@@ -422,7 +421,7 @@ def main():
             "frequency_weight": 2.0,
             "category_weights": [0.0, 0.0, 0.60, 0.15, 0.10, 0.10, 0.05],
             "behaviors": {
-                "Utilities": (220, 40), "Housing": (3500, 300), "Travel": (3000, 1000), 
+                "Utilities": (220, 40), "Housing": (3500, 300), "Transportation": (200, 80), 
                 "Retail": (700, 300), "Groceries": (200, 50), "Leisure": (450, 150), "Others": (150, 60)
             }
         },
@@ -430,7 +429,7 @@ def main():
             "frequency_weight": 1.75,
             "category_weights": [0.0, 0.0, 0.10, 0.60, 0.10, 0.15, 0.05],
             "behaviors": {
-                "Utilities": (120, 25), "Housing": (1200, 100), "Travel": (500, 300), 
+                "Utilities": (120, 25), "Housing": (1200, 100), "Transportation": (100, 30), 
                 "Retail": (900, 500), "Groceries": (70, 20), "Leisure": (100, 40), "Others": (60, 30)
             }
         }

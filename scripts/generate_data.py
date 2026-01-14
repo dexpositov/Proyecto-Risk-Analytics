@@ -403,9 +403,9 @@ def main():
     profiles_config = {
         "Thrifty": {
             "frequency_weight": 0.35,
-            "category_weights": [0.0, 0.0, 0.05, 0.15, 0.50, 0.20, 0.10],
+            "category_weights": [0.0, 0.0, 0.20, 0.05, 0.50, 0.15, 0.10],
             "behaviors": {
-                "Utilities": (60, 5), "Housing": (550, 20), "Transportation": (40, 10), 
+                "Utilities": (60, 5), "Housing": (650, 20), "Transportation": (40, 10), 
                 "Retail": (25, 10), "Groceries": (50, 15), "Leisure": (20, 10), "Others": (10, 5)
             }
         },
@@ -419,25 +419,25 @@ def main():
         },
         "Well-off": {
             "frequency_weight": 2.0,
-            "category_weights": [0.0, 0.0, 0.60, 0.15, 0.10, 0.10, 0.05],
+            "category_weights": [0.0, 0.0, 0.15, 0.30, 0.15, 0.25, 0.15],
             "behaviors": {
                 "Utilities": (220, 40), "Housing": (3500, 300), "Transportation": (200, 80), 
-                "Retail": (700, 300), "Groceries": (200, 50), "Leisure": (450, 150), "Others": (150, 60)
+                "Retail": (500, 200), "Groceries": (200, 50), "Leisure": (450, 150), "Others": (150, 60)
             }
         },
         "Techie": {
             "frequency_weight": 1.75,
-            "category_weights": [0.0, 0.0, 0.10, 0.60, 0.10, 0.15, 0.05],
+            "category_weights": [0.0, 0.0, 0.10, 0.40, 0.20, 0.20, 0.10],
             "behaviors": {
                 "Utilities": (120, 25), "Housing": (1200, 100), "Transportation": (100, 30), 
-                "Retail": (900, 500), "Groceries": (70, 20), "Leisure": (100, 40), "Others": (60, 30)
+                "Retail": (700, 200), "Groceries": (70, 20), "Leisure": (100, 40), "Others": (60, 30)
             }
         }
     }
     
     profile_assignment_weights = [0.25, 0.55, 0.08, 0.12]
-    num_clients = 2900
-    num_discretionary_tx = 100000 
+    num_clients = 1000
+    num_discretionary_tx = 35000 
     start_date = datetime(2026, 1, 1)
     locations = ["Madrid", "Barcelona", "Valencia", "Sevilla", "Bilbao", "Zaragoza", "Malaga"]
     city_weights = [0.3, 0.25, 0.15, 0.1, 0.05, 0.05, 0.1]
@@ -455,7 +455,7 @@ def main():
         locations, fixed_categories, discretionary_categories, 
         fixed_penetration, fixed_ranges, num_discretionary_tx, start_date, 
         profiles_config, daily_category_multipliers, tx_width, start_tx_id=1, 
-        num_anomalies_sets=120, days_range=(0, 30)
+        num_anomalies_sets=500, days_range=(0, 30)
     )
 
     df = pd.DataFrame(all_data)
